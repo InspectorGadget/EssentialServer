@@ -14,19 +14,26 @@ use pocketmine\level\Position;
 use pocketmine\level\Level;
 use pocketmine\utils\Config;
 
+/**
+	* All rights reserved RTGNetworkkk
+	* GitHub: https://github.com/RTGNetworkkk
+	* Website: https://rtgnetwork.tk
+	* This repo is lisenced!
+*/
+
 class Main extends PluginBase implements Listener {
 
 	public function onEnable() {
 	
-		if(!is_dir($this->getDataFolder())) {
-			@mkdir($this->getDataFolder());
-		}
-		
+		//if(!is_dir($this->getDataFolder())) {
+			//@mkdir($this->getDataFolder());
+			//@mkdir($this->getDataFolder() . "players/");
+		//}
 		
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 		$this->getLogger()->warning("
 		* Starting EssentialServer!
-		* Version: 1.0.1 Alpha
+		* Version: 1.0.2 Alpha
 		* Author: InspectorGadget
 		* GitHub: <github.com/RTGNetworkkk>
 		");
@@ -40,9 +47,9 @@ class Main extends PluginBase implements Listener {
 			if($sender->hasPermission("essentialops")) {
 			
 				// OP find open
-				foreach($this->getServer()->getOps()->getAll() as $p) {
-					if($sender->isOnline()) {
-						$n = $this->getServer()->getPlayer($p)->getName();
+				foreach($this->getServer()->getOnlinePlayers() as $p) {
+					if($p->isOp()) {
+						$n = $p->getName();
 						$sender->sendMessage(TF::GREEN . "OP: \n$n");
 					}
 					else {
@@ -162,70 +169,98 @@ class Main extends PluginBase implements Listener {
 		}
 			return true;
 		break;
-		// over! closed command
 		
-		case "hub":
-			if($sender->hasPermission("essentialhub")) {
-				if($sender instanceof Player) {
-					$sender->teleport($this->getServer()->getDefaultLevel()->getSpawnLocation());
-					$sender->sendMessage("You have been sent to dafault world Spawn!");
-				}
-				else {
-					$sender->sendMessage("You're not in-game or a player");
+		
+		case "nick":
+			if($sender->hasPermission("essentialnick")) {
+				if(isset($args[0])) {
+					switch(strtolower($args[0])) {
+						case "off"
+							if(isset($args[1])) {
+								switch(strtolower($args[1])) {
+									$args[1] = $player;
+									$p = $this->getServer()->getPlayer($args[1]);
+									$n = $p->getName();
+									
+									if($p instanceof Player) {
+										
+										$p->setDisplayName($n);
+										$p->setNameTag($n);
+										$p->sendMessage("Your nick has been reset!");
+										
+									}
+									else {
+										$sender->sendMessage("$args[1] is not available!");
+									}
+								}
+							}
+							else {
+								$sender->setDisplayName($sender->getName());
+								$sender->setNameTag($sender->getName());
+								$sender->sendMessage("You have turned off your Nick!");
+							}
+							return true;
+						break;
+						
+						case "set":
+							if(isset($args[0])) {
+								$nick = $args[0];
+								
+								if($sender instanceof Player) {
+								
+									$sender->setDisplayName("*". $nick);
+									$sender->setNameTag("*". $nick);
+									$sender->sendMessage("Your name has been changed to $nick");
+								
+								}
+								else {
+									$sender->sendMessage("You are not a Player!");
+								}
+								
+								if(isset($args[1])) {
+									$p = $args[1];
+									$pl = $this->getServer()->getPlayer($p);
+									
+									if($pl instanceof Player) {
+									
+										$pl->setNameTag("*". $nick);
+										$pl->setDisplayName("*". $nick);
+										$pl->sendMessage("You nick has been changed to $nick");
+										$sender->sendMessage("You have changed $p's nick to $nick!");
+									
+									}
+									else {
+										$sender->sendMessage("$p isnt a Player!");
+									}
+								}
+							}
+							return true;
+						break;
+					}
 				}
 			}
 			else {
 				$sender->sendMessage(TF::RED . "You have no permission to use this command!");
 			}
-			return true;
-		break;
-		
-		case "lastpos":
-			if($sender->hasPermission("essentiallastpos")) {
-				
-				if($sender instanceof Player) {
-				
-					$pos = $sender->getLastPosition();
-					$sender->teleport($pos);
-					$sender->removeLastPosition();
-					$sender->sendMessage("You have teleported to your last pos!");
-				}
-				else {
-					$sender->sendMessage("You are not a Player!");
-				}
-			}
-			else {
-				$sender->sendMessage(TF::RED . "You have no permission to use this command!");
-			}
-			return true;
-		break;
-		
-		case "afk":
-		if($sender->hasPermission("essentialafk")) {
-			if(isset($args[0])) {
-				if($args[0] === "on") {
-					$sender->hidePlayer($sender->getName());
-					$sender->sendMessage("You are now AFK!");
-				}
-				
-				if($args[0] === "off") {
-					$sender->showPlayer($sender->getName());
-					$sender->sendMessage("You are no longer AFK!");
-				}
-			}
-			else {
-				$sender->sendMessage("/afk <on | off>");
-			}
-		}
-		else {
-			$sender->sendMessage(TF::RED . "You have no permission to use this command!");
-		}
 			return true;
 		break;
 		// FOR Switch!
 		}
 		return true;
 		// Close switch
+	}
+	
+	public function onJoin(PlayerJoinEvent $e) {
+		$p = $e->getPlayer();
+		$n = $p->getName();
+		$nick = $p->getDisplayName();
+		$nic = $p->getNameTag();
+		
+		if($n !== $nick && $n !== $nick) {
+			$this->getLogger()->info("$n joined with a Nick! Resetting!");
+			$p->setDisplayName($n);
+			$p->setNameTag($n);
+		}
 	}
 	
 	public function onDisable() {
