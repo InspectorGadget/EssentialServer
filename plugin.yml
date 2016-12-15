@@ -1,7 +1,7 @@
 name: EssentialServer
 author: RTGTeam
 description: People has been dreaming for ages, now its a reality!
-version: 1.0.1
+version: 1.0.2
 main: EssentialServer\Main
 api: [2.0.0, 2.1.0]
 commands:
@@ -20,18 +20,9 @@ commands:
   clearinv:
     usage: "/clearinv <player>"
     permission: essentialclearinv
-  heal:
-    usage: "/heal <name>"
-    permission: essentialheal
-  afk:
-    usage: "/afk <name>"
-    permission: essentialafk
-  lastpos:
-    usage: "/lastpos"
-    permission: essentiallastpos
-  hub:
-    usage: "/hub"
-    permission: essentialhub
+  nick:
+    usage: "/nick < off | set | set <player>"
+    permission: essentialnick
 permissions:
   essentialops:
     default: op
@@ -43,11 +34,5 @@ permissions:
     default: op
   essentialclearinv:
     default: op
-  essentialhub:
+  essentialnick:
     default: op
-  essentiallastpos:
-    default: op
-  essentialheal:
-    default: op
-  essentialafk:
-   default: op
